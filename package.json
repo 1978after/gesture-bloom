@@ -1,0 +1,11 @@
+{
+  "name": "gesture-bloom",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Gesture-controlled particle flower built with Three.js and MediaPipe Hand Landmarker.",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  }
+}

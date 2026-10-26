@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#070a08" />
+    <meta name="description" content="指尖绽放：使用 MediaPipe Hands 与 Three.js 手势控制粒子花朵。" />
+    <title>指尖绽放 · Gesture Bloom</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three.module.min.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="experience-shell" id="experienceShell">
+      <div class="background-aura" aria-hidden="true"></div>
+      <canvas id="webglCanvas" aria-label="手势控制的三维粒子花朵"></canvas>
+
+      <div class="interface-layer">
+        <header class="site-header">
+          <a class="wordmark" href="./" aria-label="指尖绽放首页">
+            <span class="wordmark-main">FLORA</span>
+            <span class="wordmark-sub">手势花园</span>
+          </a>
+
+          <div class="edition">
+            <span>INTERACTIVE BOTANICAL STUDY</span>
+            <i aria-hidden="true"></i>
+            <span>EDITION 01</span>
+          </div>
+
+          <div class="system-state" aria-live="polite">
+            <span class="state-dot" id="stateDot"></span>
+            <span id="sessionStatus">SYSTEM READY</span>
+          </div>
+        </header>
+
+        <div class="hero-copy">
+          <p class="section-index"><span>01</span> / 数字植物学</p>
+          <h1><span>指尖</span><em>绽放</em></h1>
+          <p class="hero-description">
+            每一次握紧与舒展，<br />
+            都让光在掌心重新生长。
+          </p>
+          <div class="coordinate-line" aria-hidden="true">
+            <span>31.2304° N</span><i></i><span>121.4737° E</span>
+          </div>
+        </div>
+
+        <section class="gesture-readout" aria-live="polite">
+          <div class="gesture-glyph" id="gestureGlyph" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="gesture-copy">
+            <span class="micro-label">GESTURE STATE</span>
+            <strong id="gestureLabel">等待手势</strong>
+            <span id="gestureEnglish">AWAITING SIGNAL</span>
+          </div>
+          <div class="bloom-dial" aria-label="绽放程度">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <circle class="dial-track" cx="32" cy="32" r="27"></circle>
+              <circle class="dial-value" id="bloomRing" cx="32" cy="32" r="27"></circle>
+            </svg>
+            <div><span id="bloomPercent">42</span><small>%</small></div>
+          </div>
+        </section>
+
+        <div class="interaction-guide" id="interactionGuide">
+          <div><kbd>握拳</kbd><span>花苞 · CLOSE</span></div>
+          <i aria-hidden="true"></i>
+          <div><kbd>张开手掌</kbd><span>绽放 · BLOOM</span></div>
+        </div>
+
+        <aside class="camera-card" id="cameraCard" aria-label="手部识别预览">
+          <div class="camera-head">
+            <span>VISION / 21 PT</span>
+            <span class="camera-state"><i></i><span id="trackingLabel">STANDBY</span></span>
+          </div>
+          <div class="camera-viewport">
+            <video id="cameraVideo" playsinline muted></video>
+            <canvas id="landmarkCanvas" width="640" height="400"></canvas>
+            <div class="scan-grid" aria-hidden="true"></div>
+            <div class="viewport-fallback" id="viewportFallback" aria-hidden="true">
+              <div class="demo-rings"><span></span><span></span><span></span></div>
+              <svg viewBox="0 0 120 120">
+                <path d="M35 94V63c0-4 3-7 7-7s7 3 7 7v8-4c0-4 3-7 7-7s7 3 7 7v4-2c0-4 3-7 7-7s7 3 7 7v4-1c0-4 3-7 7-7s6 3 6 7v20c0 13-10 23-23 23H54c-7 0-13-3-18-9L19 88c-3-3-2-7 1-9 3-2 7-1 9 2l6 8" />
+              </svg>
+            </div>
+            <button class="camera-action" id="cameraAction" type="button">启用摄像头</button>
+          </div>
+          <div class="camera-foot">
+            <span id="fingerCount">00 / 05 FINGERS</span>
+            <span>LOCAL ONLY</span>
+          </div>
+        </aside>
+
+        <div class="side-note" aria-hidden="true">
+          <span>REALTIME GENERATIVE FLORA</span>
+          <i></i>
+          <span>THREE.JS × MEDIAPIPE</span>
+        </div>
+
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+        <footer class="site-footer">
+          <span>CAMERA INPUT / <b id="inputMode">STANDBY</b></span>
+          <span>IMAGES PROCESSED ON-DEVICE</span>
+        </footer>
+      </div>
+
+      <section class="boot-screen" id="bootScreen" aria-labelledby="bootTitle">
+        <div class="boot-card">
+          <p class="boot-eyebrow">A FLOWER AT YOUR FINGERTIPS</p>
+          <h1 id="bootTitle"><span>指尖</span><em>绽放</em></h1>
+          <p class="boot-description">
+            以手为土壤，以光为养分。<br />
+            握拳，收拢一整个春天；张开手，让花朵回应你。
+          </p>
+
+          <div class="boot-actions">
+            <button class="primary-action" id="startCameraButton" type="button">
+              <span>开启手势识别</span>
+              <i aria-hidden="true">↗</i>
+            </button>
+            <button class="secondary-action" id="startDemoButton" type="button">无摄像头体验</button>
+          </div>
+
+          <div class="boot-meta">
+            <span class="privacy-mark" aria-hidden="true"></span>
+            <span>图像仅在本机处理，不会上传</span>
+            <i aria-hidden="true"></i>
+            <span>建议使用 Chrome / Edge</span>
+          </div>
+          <p class="boot-status" id="bootStatus">正在准备粒子花园…</p>
+        </div>
+
+        <div class="boot-signature" aria-hidden="true">
+          <span>MOVEMENT</span><span>LIGHT</span><span>BOTANY</span>
+        </div>
+      </section>
+    </div>
+
+    <noscript>此项目需要启用 JavaScript。</noscript>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
